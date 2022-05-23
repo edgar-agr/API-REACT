@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 
 mongoose
     .connect(
-        'mongodb+srv://Edgar:<password>@cluster0.yfixe.mongodb.net/Vivero?retryWrites=true&w=majority'
+        'mongodb+srv://Edgar:12345@cluster0.yfixe.mongodb.net/Vivero?retryWrites=true&w=majority'
     )
     .then(result => {
         app.listen(8080);

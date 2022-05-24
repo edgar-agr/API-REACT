@@ -77,15 +77,22 @@ exports.getPlant = (req,res,next) => {
 };
 
 exports.editPlant = (req,res,next) => {
-    const errors = validationResult(req);
+    // const errors = validationResult(req);
 
-    if (!errors.isEmpty()) {
-        const error = new Error('Validation failed, entered data is incorrect.');
-        error.statusCode = 422;
-        throw error;
-      }
+    // if (!errors.isEmpty()) {
+    //     const error = new Error('Validation failed, entered data is incorrect.');
+    //     error.statusCode = 422;
+    //     throw error;
+    // }
 
     const plantId = req.params.id;
+
+    if(!plantId){
+        const error = new Error('Insert a plant id');
+        error.statusCode = 422;
+        throw error;
+    }
+
     const name = req.body.name;
     const description = req.body.description;
     const price = req.body.price;
@@ -121,4 +128,86 @@ exports.editPlant = (req,res,next) => {
         }
         next(error);
       })
-}
+};
+
+exports.createPlant = (req,res,next) => {
+    // const errors = validationResult(req);
+
+    // if (!errors.isEmpty()) {
+    //     const error = new Error('Validation failed, entered data is incorrect.');
+    //     error.statusCode = 422;
+    //     throw error;
+    // }
+
+    const name = req.body.name;
+    const description = req.body.description;
+    const price = req.body.price;
+    const imgUrl = req.body.imgUrl;
+    const ecosystem = req.body.ecosystem;
+    
+    Plants
+        .findOne({name:name})
+        .then(result => {
+            if(result){
+                const error = new Error('Plant already exists');
+                error.statusCode = 400;
+                throw error;
+            }
+
+            const plant = new Plants({
+                name:name,
+                description:description,
+                price:price,
+                imgUrl:imgUrl,
+                ecosystem:ecosystem
+            });
+
+            return plant.save()
+        })
+        .then(result => {
+            res.status(201).json({
+                message:'Plant created successfullly',
+                plant:result
+            });
+        })
+        .catch(error => {
+            if(!error.statusCode){
+                error.statusCode = 500;
+            }
+            next(error);
+        })
+};
+
+exports.deletePlant = (req,res,next) => {
+    const id = req.params.id;
+
+    if(!id){
+        const error = new Error('Insert a plant id');
+        error.statusCode = 422;
+        throw error;
+    }
+
+    Plants
+        .findById(id)
+        .then(plant => {
+            if(!plant){
+                const error = new Error('Plant not found!');
+                error.statusCode = 404;
+                throw error;
+            }
+
+            return Plants.findByIdAndDelete(id)
+        })
+        .then(result => {
+            res.status(200).json({
+                message:'plant deleted successfully',
+                plant:result
+            })
+        })
+        .catch(error => {
+            if(!error.statusCode){
+                error.statusCode = 500;
+            }
+            next(error);
+        })
+};

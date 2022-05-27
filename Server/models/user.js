@@ -9,6 +9,10 @@ const userSchema = mongoose.Schema({
         type:String,
         required:true
     },
+    password:{
+        type:String,
+        required:true
+    },
     phone:{
         type:Number,
         required:true
@@ -20,23 +24,19 @@ const userSchema = mongoose.Schema({
     address:{
         street:{
             type:String,
-            required:true
         },
         city:{
             type:String,
-            required:true
         },
         country:{
             type:String,
-            required:true
         },
         zip:{
             type:Number,
-            required:true
         },
     },
     cart:[{
-        plantId :{
+        plant :{
             type: mongoose.Types.ObjectId,
             ref:'Plants',
             required:true },

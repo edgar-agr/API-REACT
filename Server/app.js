@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 
 const plantsRoutes = require('./routes/plants');
+const userRoutes = require('./routes/user');
 
 const app = express();
 
@@ -12,6 +13,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 app.use(plantsRoutes);
+app.use(userRoutes);
 
 app.use((error,req,res,next)=>{
     console.log(error);

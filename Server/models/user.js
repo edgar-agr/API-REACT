@@ -36,7 +36,7 @@ const userSchema = mongoose.Schema({
         },
     },
     cart:[{
-        plantId :{
+        plant :{
             type: mongoose.Types.ObjectId,
             ref:'Plants',
             required:true },

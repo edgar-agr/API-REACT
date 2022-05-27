@@ -15,8 +15,8 @@ router.get('/user/:id',userController.getUser);
 
 router.get('/cart/:id',userController.getCart);
 
-router.post('/cart');
+router.post('/cart',userController.updateCart);
 
-router.delete('/cart')
+router.delete('/cart',userController.deleteCart);
 
 module.exports = router;

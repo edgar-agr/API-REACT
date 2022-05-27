@@ -202,7 +202,7 @@ exports.getUser = (req,res,next) => {
 };
 
 exports.getCart = (req,res,next) => {
-    const id  = req.body.id;
+    const id  = req.params.id;
     let cartCount;
     let userInfo;
 
@@ -221,47 +221,57 @@ exports.getCart = (req,res,next) => {
                     cart:[]
                 })
             }
+            else{
+                cartCount = user.cart.length;
+                userInfo = user;
 
-            cartCount = user.cart.length;
-            userInfo = user;
+                User
+                    .findById(id)
+                    .populate('cart.plant')
+                    .then(user => {
+                        const cart = [];
+                        
+                        user.cart.forEach(plant => {
+                            if(plant.plant){
+                                cart.push({
+                                    plant:plant._id,
+                                    qty:plant.qty});
+                            }
+                        })
 
-            return User.findById(id).populate('cart.plantId');
-        })
-        .then(user => {
-            const cart = user.cart.map(plant => {
-                if(plant.name){
-                    return plant._id;
-                }
-            })
-
-            if(cartCount === cart.length){
-                res.status(200).json({
-                    message:"The cart is complete",
-                    cart: user.cart
-                })
+                        if(cartCount === cart.length){
+                            res.status(200).json({
+                                message:"The cart is complete",
+                                cart: user.cart
+                            })
+                        }
+                        else{
+                            userInfo.cart = cart;
+            
+                            userInfo
+                                .save()
+                                .then(updatedUserCart => {
+    
+                                    if(updatedUserCart.cart.length === 0){
+                                        res.status(206).json({
+                                            message:"All the plants are no longer available",
+                                            cart:[],
+                                            prevItems: cartCount,
+                                            actualItems: 0
+                                        })
+                                    }
+                                    else{
+                                        res.status(206).json({
+                                            message:"Some plants are no longer available",
+                                            cart:updatedUserCart.cart,
+                                            prevItems: cartCount,
+                                            actualItems: updatedUserCart.cart.length
+                                        });
+                                    }
+                                })
+                        }
+                    })
             }
-
-            userInfo.cart = cart;
-
-            return userInfo.save();
-        })
-        .then(updatedUserCart => {
-
-            if(updatedUserCart.cart.length === 0){
-                res.status(206).json({
-                    message:"All the plants are no longer available",
-                    cart:[],
-                    prevItems: cartCount,
-                    actualItems: 0
-                })
-            }
-
-            res.status(206).json({
-                message:"Some plants are no longer available",
-                cart:updatedUserCart.cart,
-                prevItems: cartCount,
-                actualItems: updatedUserCart.cart.length
-            })
         })
         .catch(error => {
             if(!error.statusCode){
@@ -297,7 +307,7 @@ exports.updateCart = (req,res,next) => {
             }
 
             res.status(200).json({
-                message:"The cart is complete",
+                message:"The cart is updated",
                 cart: userCart.cart
             })
         })
@@ -322,23 +332,23 @@ exports.deleteCart = (req,res,next) => {
                 throw error; 
             }
 
-            if(userCart.cart.length === 0){
+            if(user.cart.length === 0){
                 res.status(200).json({
                     message:"The cart is already empty",
                     cart:[]
                 });
             }
-
-            user.cart = [];
-            return user.save();
-        })
-        .then(userCart => {
-
-
-            res.status(200).json({
-                message:"The cart is complete",
-                cart: userCart.cart
-            })
+            else{
+                user.cart = [];
+                user.save()
+                .then(userCart => {
+                    res.status(200).json({
+                        message:"The cart is deleted",
+                        cart: userCart.cart
+                    })
+                })
+            }
+            
         })
         .catch(error => {
             if(!error.statusCode){
@@ -346,5 +356,4 @@ exports.deleteCart = (req,res,next) => {
             }
             next(error);
         })
-
 };

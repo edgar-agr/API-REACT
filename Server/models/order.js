@@ -2,10 +2,28 @@ const mongoose = require('mongoose');
 
 const orderSchema = mongoose.Schema({
     plants:[{
-        plantId :{
-            type: mongoose.Types.ObjectId,
-            ref:'Plants',
-            required:true },
+        plant :{
+            name:{
+                type:String,
+                required:true
+            },
+            description:{
+                type:String,
+                required:true
+            },
+            price:{
+                type:Number,
+                required:true
+            },
+            imgUrl:{
+                type:String,
+                required:true
+            },
+            ecosystem:{
+                type:String,
+                required:true
+            }
+        },
         qty:{
             type:Number,
             required:true

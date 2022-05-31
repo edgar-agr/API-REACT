@@ -6,6 +6,7 @@ exports.getPlants = (req,res,next) => {
     const page = req.query.page || 1;
     let ecosystem = req.query.ecosystem || 'All';
     const perPage = 5;
+    let totalPlants;
 
     if(ecosystem === 'All'){
         ecosystem = ['Forest','Grassland','Desert','Tundra','Freshwater','Marine'];
@@ -26,6 +27,7 @@ exports.getPlants = (req,res,next) => {
                 error.statusCode = 422;
                 throw error
             }
+            totalPlants = count;
 
             return Plants
                 .find({ecosystem:ecosystem})
@@ -35,6 +37,9 @@ exports.getPlants = (req,res,next) => {
         .then(result =>{
             res.status(200).json({
                 plants:result,
+                total: totalPlants,
+                page:page,
+                perpage:perPage,
                 message:'Fetch succesful'});
         })
         .catch(error =>{
